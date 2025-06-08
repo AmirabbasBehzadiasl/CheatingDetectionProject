@@ -23,20 +23,20 @@ public interface StudentMapper {
      * @return Student entity with associated Answers
      */
     @Mapping(source = "name", target = "name")
-    @Mapping(source = "responses", target = "answers",ignore = true)
+    @Mapping(source = "answers", target = "answers",ignore = true)
     Student toStudent(StudentResponse studentResponse);
 
     /**
      * Maps QuestionResponse to Answers entity.
      * @param questionResponse Input DTO for a response
-     * @param student Associated Student entity
      * @return Answers entity
      */
-    @Mapping(source = "questionResponse.qnumber", target = "qnumber")
-    @Mapping(source = "questionResponse.description", target = "description")
-    @Mapping(source = "questionResponse.timeTaken", target = "timeTaken")
-    @Mapping(source = "student", target = "student" , ignore = true)
-    Answers toAnswer(QuestionResponse questionResponse, Student student);
+    @Mapping(source = "qnumber", target = "qnumber")
+    @Mapping(source = "description", target = "description")
+    @Mapping(source = "startTime", target = "startTime")
+    @Mapping(source = "endTime", target = "endTime")
+    @Mapping(target = "student" , ignore = true)
+    Answers toAnswer(QuestionResponse questionResponse);
 
 
 }

@@ -12,6 +12,8 @@ import com.project.CheatingDetectionProject.Repositories.StudentRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -61,8 +63,9 @@ public class FraudDetectionService {
         Student newStudent = studentMapper.toStudent(studentResponse);
 
         List<Answers> answers = new ArrayList<>();
-        for (QuestionResponse qr : studentResponse.getResponses()) {
-            Answers answer = studentMapper.toAnswer(qr, newStudent);
+        for (QuestionResponse qr : studentResponse.getAnswers()) {
+            Answers answer = studentMapper.toAnswer(qr);
+            answer.setStudent(newStudent);
             answers.add(answer);
         }
         newStudent.setAnswers(answers);
@@ -100,8 +103,9 @@ public class FraudDetectionService {
 //                            analysis.setSentenceTransformerSimilarity(
 //                                    sentenceTransformerClient.getSimilarity(
 //                                            answer1.getDescription(), answer2.getDescription()));
-                            analysis.setTimeRisk(calculateTimeRisk(answer1.getTimeTaken(), answer2.getTimeTaken()));
-                            analysis.setTimeMin(calculateTimeMin(answer1.getTimeTaken()));
+                            analysis.setSuspiciousTimeDifference(calculateTimeRisk(answer1.getStartTime(),answer2.getStartTime(),answer1.getEndTime(),answer2.getEndTime()));
+                            analysis.setSuspiciousTimeStudent1(calculateTimeMin(answer1.getEndTime() , answer1.getStartTime()));
+                            analysis.setSuspiciousTimeStudent2(calculateTimeMin(answer2.getEndTime() , answer2.getStartTime()));
                             analysis.setSimilarWords(findSimilarWords(answer1.getDescription(), answer2.getDescription()));
                             questionAnalyses.add(analysis);
                         }
@@ -115,12 +119,14 @@ public class FraudDetectionService {
         return results;
     }
 
-    private double calculateTimeRisk(int time1, int time2) {
-        return Math.abs(time1 - time2) < 5 ? 0.8 : 0.2;
+    private double calculateTimeRisk(LocalDateTime startTime1, LocalDateTime startTime2 ,LocalDateTime endTime1 , LocalDateTime endTime2) {
+        return  Math.max(0, (double) (600 - (ChronoUnit.SECONDS.between(startTime1, startTime2) + ChronoUnit.MINUTES.between(endTime1, endTime2))) /600);
+
     }
 
-    private double calculateTimeMin(int time) {
-        return time < 10 ? 0.9 : (time < 20 ? 0.5 : 0.1);
+    private double calculateTimeMin(LocalDateTime endTime , LocalDateTime startTime ) {
+        System.err.println(ChronoUnit.SECONDS.between(startTime,endTime));
+        return Math.max(0,(300 - (double) ((ChronoUnit.SECONDS.between(startTime, endTime))) )/300);
     }
 
     private List<String> findSimilarWords(String s1, String s2) {

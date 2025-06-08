@@ -7,8 +7,9 @@ public class QuestionAnalysis {
     private int qnumber;
     private double levenshteinSimilarity;
     private double sentenceTransformerSimilarity;
-    private double timeRisk;
-    private double timeMin;
+    private double SuspiciousTimeDifference;
+    private double SuspiciousTimeStudent1;
+    private double SuspiciousTimeStudent2;
     private List<String> similarWords;
 
     public int getQnumber() {
@@ -35,20 +36,20 @@ public class QuestionAnalysis {
         this.sentenceTransformerSimilarity = sentenceTransformerSimilarity;
     }
 
-    public double getTimeRisk() {
-        return timeRisk;
+    public double getSuspiciousTimeDifference() {
+        return SuspiciousTimeDifference;
     }
 
-    public void setTimeRisk(double timeRisk) {
-        this.timeRisk = timeRisk;
+    public void setSuspiciousTimeDifference(double suspiciousTimeDifference) {
+        this.SuspiciousTimeDifference = suspiciousTimeDifference;
     }
 
-    public double getTimeMin() {
-        return timeMin;
+    public double getSuspiciousTimeStudent1() {
+        return SuspiciousTimeStudent1;
     }
 
-    public void setTimeMin(double timeMin) {
-        this.timeMin = timeMin;
+    public void setSuspiciousTimeStudent1(double suspiciousTimeStudent1) {
+        this.SuspiciousTimeStudent1 = suspiciousTimeStudent1;
     }
 
     public List<String> getSimilarWords() {
@@ -57,5 +58,13 @@ public class QuestionAnalysis {
 
     public void setSimilarWords(List<String> similarWords) {
         this.similarWords = similarWords;
+    }
+
+    public double getSuspiciousTimeStudent2() {
+        return SuspiciousTimeStudent2;
+    }
+
+    public void setSuspiciousTimeStudent2(double suspiciousTimeStudent2) {
+        SuspiciousTimeStudent2 = suspiciousTimeStudent2;
     }
 }

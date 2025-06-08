@@ -4,6 +4,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDateTime;
+
 /**
  * for representing a single question's response
  * **/
@@ -16,9 +18,12 @@ public class QuestionResponse {
     @NotBlank(message = "Description cannot be blank")
     private String description;
 
-    @NotNull(message = "Time taken cannot be null")
-    @Min(value = 0, message = "Time taken cannot be negative")
-    private Integer timeTaken;
+    @NotNull(message = "start time is required")
+    private LocalDateTime startTime;
+
+    @NotNull(message = "end time is required")
+    private LocalDateTime endTime;
+
 
     public Integer getQnumber() {
         return qnumber;
@@ -36,11 +41,19 @@ public class QuestionResponse {
         this.description = description;
     }
 
-    public Integer getTimeTaken() {
-        return timeTaken;
+    public LocalDateTime getEndTime() {
+        return endTime;
     }
 
-    public void setTimeTaken(Integer timeTaken) {
-        this.timeTaken = timeTaken;
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
     }
 }

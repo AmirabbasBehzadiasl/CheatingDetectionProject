@@ -16,8 +16,8 @@ public class StudentResponse {
     @Pattern(regexp = "^[a-zA-Z]+$", message = "name should have only lowercase alphabet characters")
     private String name;
 
-    @NotEmpty(message = "Responses cannot be empty")
-    private List<QuestionResponse> responses;
+    @NotEmpty(message = "answers cannot be empty")
+    private List<QuestionResponse> answers;
 
     public String getName() {
         return name;
@@ -27,11 +27,11 @@ public class StudentResponse {
         this.name = name;
     }
 
-    public List<QuestionResponse> getResponses() {
-        return responses;
+    public List<QuestionResponse> getAnswers() {
+        return answers;
     }
 
-    public void setResponses(List<QuestionResponse> responses) {
-        this.responses = responses;
+    public void setAnswers(List<QuestionResponse> answers) {
+        this.answers = answers;
     }
 }
