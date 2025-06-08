@@ -8,7 +8,7 @@ public class ExamResponse {
 
     @NotEmpty(message = "Responses cannot be empty")
     private Map<String, List<QuestionResponse>> responses;
-    
+
     public Map<String, List<QuestionResponse>> getResponses() {
         return responses;
     }
