@@ -4,18 +4,23 @@ import com.project.CheatingDetectionProject.Dtos.FraudAnalysisResult;
 import com.project.CheatingDetectionProject.Dtos.QuestionAnalysis;
 import com.project.CheatingDetectionProject.Dtos.QuestionResponse;
 import com.project.CheatingDetectionProject.Dtos.StudentResponse;
+import com.project.CheatingDetectionProject.Exceptions.AlreadyExistException;
+import com.project.CheatingDetectionProject.Exceptions.NotFoundException;
 import com.project.CheatingDetectionProject.Mapper.StudentMapper;
 import com.project.CheatingDetectionProject.Models.*;
 import com.project.CheatingDetectionProject.Repositories.StudentRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service for fraud detection by processing and analyzing exam responses.
  */
 @Service
+@Transactional
 public class FraudDetectionService {
     private final StudentRepository studentRepository;
     private final StudentMapper studentMapper;
@@ -34,30 +39,42 @@ public class FraudDetectionService {
     }
 
     /**
+     * Delete a single student with her/his exam
+     * **/
+    public void deleteStudentByName(Long id) {
+        Student student = studentRepository.findById(id)
+                        .orElseThrow(() -> new NotFoundException("Student with id "+ id + " not found"));
+        studentRepository.delete(student);
+    }
+
+    /**
      * Saves a single student's exam responses to the database.
      * @param studentResponse Input DTO containing a student's responses
      */
-    public void saveStudentResponses(StudentResponse studentResponse) {
-        // Map StudentResponse to Student entity
-        Student student = studentMapper.toStudent(studentResponse);
 
-        // Manually map QuestionResponse to Answers
+    public void saveStudentResponses(StudentResponse studentResponse) {
+        Optional<Student> existingStudent = studentRepository.findStudentByName(studentResponse.getName());
+
+        if (existingStudent.isPresent()) {
+            throw new AlreadyExistException("Student with name " + studentResponse.getName() + " already exists.");
+        }
+        Student newStudent = studentMapper.toStudent(studentResponse);
+
         List<Answers> answers = new ArrayList<>();
         for (QuestionResponse qr : studentResponse.getResponses()) {
-            Answers answer = studentMapper.toAnswer(qr, student);
-            answer.setStudent(student); // Explicitly set the student
+            Answers answer = studentMapper.toAnswer(qr, newStudent);
             answers.add(answer);
         }
-        student.setAnswers(answers); // Set answers to student
+        newStudent.setAnswers(answers);
 
-        // Save to database
-        studentRepository.save(student);
+        studentRepository.save(newStudent);
     }
 
     /**
      * Analyzes stored responses for fraud detection.
      * @return List of fraud analysis results for participant pairs
-     */
+     **/
+
     public List<FraudAnalysisResult> analyze() {
         List<Student> students = studentRepository.findAll();
         List<FraudAnalysisResult> results = new ArrayList<>();
@@ -68,8 +85,8 @@ public class FraudDetectionService {
                 Student student2 = students.get(j);
 
                 FraudAnalysisResult result = new FraudAnalysisResult();
-                result.setParticipant1(student1.getName());
-                result.setParticipant2(student2.getName());
+                result.setStudent1(student1.getName());
+                result.setStudent2(student2.getName());
                 List<QuestionAnalysis> questionAnalyses = new ArrayList<>();
 
                 for (Answers answer1 : student1.getAnswers()) {

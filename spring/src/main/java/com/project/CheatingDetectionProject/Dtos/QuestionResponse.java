@@ -4,6 +4,9 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+/**
+ * for representing a single question's response
+ * **/
 public class QuestionResponse {
 
     @NotNull(message = "Question number cannot be null")
