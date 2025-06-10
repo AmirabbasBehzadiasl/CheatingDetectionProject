@@ -11,7 +11,10 @@ import com.project.CheatingDetectionProject.Models.*;
 import com.project.CheatingDetectionProject.Repositories.StudentRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -27,17 +30,18 @@ public class FraudDetectionService {
     private final StudentRepository studentRepository;
     private final StudentMapper studentMapper;
     private final SimilarityService similarityService;
-//    private final SentenceTransformerClient sentenceTransformerClient;
+    private final SentenceTransformerClient sentenceTransformerClient;
+    RestTemplate restTemplate = new RestTemplate();
 
     public FraudDetectionService(StudentRepository studentRepository,
                                  StudentMapper studentMapper,
-                                 SimilarityService similarityService
-
+                                 SimilarityService similarityService,
+                                 SentenceTransformerClient sentenceTransformerClient
                                  ) {
         this.studentRepository = studentRepository;
         this.studentMapper = studentMapper;
         this.similarityService = similarityService;
-//        this.sentenceTransformerClient = sentenceTransformerClient;
+        this.sentenceTransformerClient = sentenceTransformerClient;
     }
 
     /**
@@ -97,12 +101,14 @@ public class FraudDetectionService {
                         if (answer1.getQnumber().equals(answer2.getQnumber())) {
                             QuestionAnalysis analysis = new QuestionAnalysis();
                             analysis.setQnumber(answer1.getQnumber());
-                            analysis.setLevenshteinSimilarity(
-                                    similarityService.calculateLevenshteinSimilarity(
+                            double similarity = similarityService.calculateLevenshteinSimilarity(
+                                    answer1.getDescription(), answer2.getDescription());
+                            BigDecimal roundedSimilarity = BigDecimal.valueOf(similarity)
+                                    .setScale(2, RoundingMode.HALF_UP);
+                            analysis.setLevenshteinSimilarity(roundedSimilarity.doubleValue());
+                            analysis.setSentenceTransformerSimilarity(
+                                    sentenceTransformerClient.getSimilarity(
                                             answer1.getDescription(), answer2.getDescription()));
-//                            analysis.setSentenceTransformerSimilarity(
-//                                    sentenceTransformerClient.getSimilarity(
-//                                            answer1.getDescription(), answer2.getDescription()));
                             analysis.setSuspiciousTimeDifference(calculateTimeRisk(answer1.getStartTime(),answer2.getStartTime(),answer1.getEndTime(),answer2.getEndTime()));
                             analysis.setSuspiciousTimeStudent1(calculateTimeMin(answer1.getEndTime() , answer1.getStartTime()));
                             analysis.setSuspiciousTimeStudent2(calculateTimeMin(answer2.getEndTime() , answer2.getStartTime()));
