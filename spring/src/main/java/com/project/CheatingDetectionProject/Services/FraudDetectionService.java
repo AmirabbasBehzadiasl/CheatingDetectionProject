@@ -46,6 +46,7 @@ public class FraudDetectionService {
     /**
      * Delete a single student with her/his exam
      * **/
+
     public void deleteStudentByName(Long id) {
         Student student = studentRepository.findById(id)
                         .orElseThrow(() -> new NotFoundException("Student with id "+ id + " not found"));

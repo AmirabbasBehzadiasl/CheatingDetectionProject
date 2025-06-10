@@ -3,6 +3,7 @@ package com.project.CheatingDetectionProject.Dtos;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -16,6 +17,7 @@ public class QuestionResponse {
     @Min(value = 1, message = "Question number must be positive")
     private Integer qnumber;
 
+    @Pattern(regexp = "^[a-zA-Z]+$", message = "name should have only lowercase alphabet characters")
     @NotBlank(message = "Description cannot be blank")
     private String description;
 

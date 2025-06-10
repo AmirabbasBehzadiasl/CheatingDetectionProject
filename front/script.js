@@ -1,4 +1,3 @@
-
 let userName = '';
 let currentQuestionIndex = 0;
 let answers = []; // Stores objects with qnumber, description, startTime, endTime, timeSpentOnQuestion
@@ -9,7 +8,7 @@ const QUIZ_DURATION_SECONDS = 3 * 60; // 3 minutes
 let overallTimeLeft = QUIZ_DURATION_SECONDS;
 let fullAnalysisData = []; // Stores the full fetched cheating analysis data
 
-const ADMIN_USERNAME_FRONTEND = "admin"; // Frontend constant for showing password field
+const ADMIN_USERNAME_FRONTEND = "admin"; 
 // IMPORTANT: The actual password check is now on the backend!
 // The value below is just for convenience to quickly test, the backend check is what matters.
 const ADMIN_PASSWORD_FRONTEND_PROMPT = "12345678"; 
@@ -68,7 +67,15 @@ function startQuiz() {
     userName = document.getElementById('userName').value.trim();
     
     if (userName === "") {
-        alert("Please enter your name to start the quiz.");
+        alert("Please enter your name to start the quiz."); // English message
+        return;
+    }
+
+    // New validation for userName based on @Pattern and @NotBlank
+    // This regex allows ONLY alphabet characters (both uppercase and lowercase)
+    // If your backend pattern was strictly for lowercase: `^[a-z]+$`
+    if (!/^[a-zA-Z]+$/.test(userName)) {
+        alert("Please enter a name with only alphabet characters (no spaces or numbers)."); // English message
         return;
     }
 
@@ -80,10 +87,6 @@ function startQuiz() {
         return; // Stop quiz start logic
     }
 
-    if (!/^[a-zA-Z]+$/.test(userName)) {
-        alert("Please enter a name with only alphabet characters (no spaces or numbers).");
-        return;
-    }
 
     document.getElementById('welcomeScreen').classList.add('hidden');
     document.getElementById('quizScreen').classList.remove('hidden');
@@ -91,7 +94,7 @@ function startQuiz() {
     
     answers = questions.map((q, index) => ({
         qnumber: index + 1,
-        description: '',
+        description: '', // Initialize description as empty string
         startTime: '',
         endTime: '',
         timeSpentOnQuestion: 0
@@ -113,7 +116,7 @@ async function attemptShowCheatingAnalysis() {
     // Only attempt admin login if the username is 'admin'
     if (currentUserName === ADMIN_USERNAME_FRONTEND) {
         if (!currentAdminPassword) {
-            alert("Please enter the admin password.");
+            alert("Please enter the admin password."); // English message
             adminPasswordInput.classList.remove('hidden'); // Ensure it's visible
             return;
         }
@@ -136,15 +139,15 @@ async function attemptShowCheatingAnalysis() {
                 console.log("Admin authenticated successfully on backend.");
                 await showCheatingAnalysis(currentUserName, currentAdminPassword); // Pass credentials to fetch analysis
             } else {
-                alert("Invalid admin username or password.");
+                alert("Invalid admin username or password."); // English message
                 adminPasswordInput.value = ''; // Clear password on failure
             }
         } catch (error) {
             console.error('Error during admin login:', error);
-            alert(`An error occurred during admin login: ${error.message}`);
+            alert(`An error occurred during admin login: ${error.message}`); // English message
         }
     } else {
-        alert("Only 'admin' users can view cheating analysis directly from this button. Please enter 'admin' as your name.");
+        alert("Only 'admin' users can view cheating analysis directly from this button. Please enter 'admin' as your name."); // English message
         // Optionally, transition back to welcome screen if they clicked from quiz completed screen
         document.getElementById('quizCompletedScreen').classList.add('hidden');
         document.getElementById('welcomeScreen').classList.remove('hidden');
@@ -163,7 +166,7 @@ function startOverallQuizTimer() {
 
         if (overallTimeLeft <= 0) {
             clearInterval(overallQuizTimerInterval);
-            alert("Time's up! The quiz has ended.");
+            alert("Time's up! The quiz has ended."); // English message
             submitQuiz();
         }
     }, 1000);
@@ -225,8 +228,15 @@ function startIndividualQuestionTimer() {
 }
 
 function saveCurrentAnswer() {
-    const userAnswer = document.getElementById('userAnswer').value.trim();
-    // Update the description and endTime for the current question
+    const userAnswerTextArea = document.getElementById('userAnswer');
+    const userAnswer = userAnswerTextArea.value.trim();
+
+    // New validation for description (answer) based on @NotBlank
+    if (userAnswer === "") {
+        // Alerting here might be disruptive if just navigating, but ensures user knows
+        alert("Please enter an answer for this question. Answers cannot be blank."); // English message
+    }
+    
     answers[currentQuestionIndex].description = userAnswer;
     answers[currentQuestionIndex].endTime = new Date().toISOString().slice(0, 19);
 }
@@ -295,6 +305,16 @@ async function submitQuiz() {
     // Ensure the last answer is saved before submission
     saveCurrentAnswer(); 
 
+    // Additional check for all answers before final submission
+    for (const answer of answers) {
+        if (answer.description.trim() === "") {
+            alert(`Question ${answer.qnumber} has not been answered. Please answer all questions.`); // English message
+            // Optionally, navigate to the unanswered question
+            goToQuestion(answer.qnumber - 1);
+            return; // Prevent submission
+        }
+    }
+
     clearInterval(individualQuestionTimerInterval);
     clearInterval(overallQuizTimerInterval);
 
@@ -303,7 +323,7 @@ async function submitQuiz() {
     document.getElementById('completedUserName').textContent = userName;
     document.getElementById('completedUserNameMsg').textContent = userName;
 
-    // Filter out any potentially empty answers if a user navigated back and forth without typing
+    // Filter out any potentially empty answers (less likely now with client-side validation)
     const submittedAnswers = answers.filter(answer => answer.description !== '');
 
     const submissionData = {
@@ -328,11 +348,9 @@ async function submitQuiz() {
         }
         const result = await response.text();
         console.log('Quiz submitted successfully:', result);
-        // alert('Your quiz has been submitted successfully!'); // Removed alert to avoid blocking
     } catch (error) {
         console.error('Error submitting quiz:', error);
-        alert(`There was an error submitting your quiz: ${error.message}. Please try again.`);
-        // If submission fails, revert to welcome screen or provide option to retry
+        alert(`There was an error submitting your quiz: ${error.message}. Please try again.`); // English message
         document.getElementById('quizCompletedScreen').classList.add('hidden');
         document.getElementById('welcomeScreen').classList.remove('hidden');
     }
@@ -346,7 +364,7 @@ async function showCheatingAnalysis(adminUsername, adminPassword) {
     document.getElementById('cheatingDetectionScreen').classList.remove('hidden');
 
     const cheatingResultsDiv = document.getElementById('cheatingResults');
-    cheatingResultsDiv.innerHTML = 'Loading cheating analysis...';
+    cheatingResultsDiv.innerHTML = 'Loading cheating analysis...'; // English message
 
     // Clear any active timers if analysis is shown directly from welcome screen
     clearInterval(individualQuestionTimerInterval);
@@ -365,7 +383,7 @@ async function showCheatingAnalysis(adminUsername, adminPassword) {
         });
 
         if (response.status === 401) { // Unauthorized
-            alert("Authentication failed. Please log in as admin again.");
+            alert("Authentication failed. Please log in as admin again."); // English message
             resetQuiz(); // Go back to welcome screen
             return;
         }
@@ -380,7 +398,7 @@ async function showCheatingAnalysis(adminUsername, adminPassword) {
 
     } catch (error) {
         console.error('Error fetching cheating analysis:', error);
-        cheatingResultsDiv.innerHTML = `<p style="color: red;">Error fetching cheating analysis: ${error.message}</p>`;
+        cheatingResultsDiv.innerHTML = `<p style="color: red;">Error fetching cheating analysis: ${error.message}</p>`; // English message
     }
 }
 
@@ -450,7 +468,7 @@ function renderCheatingAnalysis(analysisData) {
     cheatingResultsDiv.innerHTML = '';
 
     if (analysisData.length === 0) {
-        cheatingResultsDiv.innerHTML = '<p>No cheating analysis data available for the selected filters, or no suspicious activity was detected.</p>';
+        cheatingResultsDiv.innerHTML = '<p>No cheating analysis data available for the selected filters, or no suspicious activity was detected.</p>'; // English message
         return;
     }
 
