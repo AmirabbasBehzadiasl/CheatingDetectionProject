@@ -3,7 +3,11 @@ from sentence_transformers import SentenceTransformer, util
 
 app = Flask(__name__)
 
+<<<<<<< HEAD
 model = SentenceTransformer('all-MiniLM-L6-v2')
+=======
+ model = SentenceTransformer('all-MiniLM-L6-v2')
+>>>>>>> pythonService
 
 @app.route('/similarity', methods=['POST'])
 def get_similarity():
