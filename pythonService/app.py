@@ -1,6 +1,9 @@
 from flask import Flask, request, jsonify
+from sentence_transformers import SentenceTransformer, util
 
 app = Flask(__name__)
+
+ model = SentenceTransformer('all-MiniLM-L6-v2')
 
 @app.route('/similarity', methods=['POST'])
 def get_similarity():
@@ -9,7 +12,17 @@ def get_similarity():
         if not data or 'text1' not in data or 'text2' not in data:
             return jsonify({'error': 'Missing text1 or text2 in request'}), 400
 
-        return jsonify({'similarity': 5}), 200
+        text1 = data['text1']
+        text2 = data['text2']
+
+        embedding1 = model.encode(text1, convert_to_tensor=True)
+        embedding2 = model.encode(text2, convert_to_tensor=True)
+
+        similarity = util.cos_sim(embedding1, embedding2)[0][0].item()
+
+        similarity = round(similarity, 2)
+
+        return jsonify({'similarity': similarity}), 200
 
     except Exception as e:
         return jsonify({'error': f'Error processing request: {str(e)}'}), 500
