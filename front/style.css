@@ -1,0 +1,249 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    transition: background-color 0.3s ease;
+}
+
+body.dark-mode {
+    background-color: #333;
+    color: #eee;
+}
+
+.card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    width: 90%;
+    max-width: 700px;
+    text-align: center;
+    position: relative;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-mode .card {
+    background-color: #444;
+    color: #eee;
+}
+
+.dark-mode-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.dark-mode-toggle:hover {
+    background-color: #0056b3;
+}
+
+h1, h2 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+body.dark-mode h1, body.dark-mode h2 {
+    color: #eee;
+}
+
+p {
+    color: #555;
+    margin-bottom: 25px;
+}
+
+body.dark-mode p {
+    color: #ccc;
+}
+
+input[type="text"], input[type="number"], input[type="password"] {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+textarea {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    min-height: 100px;
+    resize: vertical;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 5px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.progress-bar-container {
+    width: 100%;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    height: 10px;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #28a745;
+    border-radius: 5px;
+    width: 0%;
+    transition: width 0.4s ease-in-out;
+}
+
+.pagination-dots {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.dot {
+    height: 10px;
+    width: 10px;
+    background-color: #bbb;
+    border-radius: 50%;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.dot.active {
+    background-color: #007bff;
+}
+
+.cheating-results-container {
+    text-align: left;
+    margin-top: 20px;
+}
+
+.cheating-pair {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+}
+
+body.dark-mode .cheating-pair {
+    background-color: #555;
+    border-color: #666;
+}
+
+.cheating-pair h3 {
+    color: #007bff;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+body.dark-mode .cheating-pair h3 {
+    color: #87ceeb;
+}
+
+.cheating-pair p {
+    margin-bottom: 5px;
+    color: #333;
+}
+body.dark-mode .cheating-pair p {
+    color: #eee;
+}
+
+.question-analysis {
+    border-top: 1px dashed #eee;
+    padding-top: 15px;
+    margin-top: 15px;
+}
+body.dark-mode .question-analysis {
+    border-color: #666;
+}
+
+.question-analysis strong {
+    color: #007bff;
+}
+body.dark-mode .question-analysis strong {
+    color: #87ceeb;
+}
+
+/* Style for highlighted words */
+.highlight {
+    background-color: yellow;
+    color: black; /* Ensure text is readable on yellow */
+    padding: 2px 0; /* Add a little padding */
+    border-radius: 3px;
+}
+body.dark-mode .highlight {
+    background-color: #ffeb3b; /* A slightly different yellow for dark mode */
+    color: #333;
+}
+
+.hidden {
+    display: none;
+}
+
+#overallTimerContainer {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #dc3545; /* Red color for overall timer */
+}
+body.dark-mode #overallTimerContainer {
+    color: #ffcccb; /* Lighter red for dark mode */
+}
+
+.filter-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    text-align: left; /* Align text within filter section to the left */
+}
+
+body.dark-mode .filter-section {
+    background-color: #555;
+    border-color: #666;
+}
+
+.filter-section label {
+    display: block; /* Make labels block-level for better spacing */
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+body.dark-mode .filter-section label {
+    color: #eee;
+}
+
+.filter-section input[type="text"],
+.filter-section input[type="number"] {
+    width: calc(50% - 15px); /* Adjusted width for two inputs in a row */
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+.filter-section button {
+    margin-top: 10px; /* Add some space above buttons */
+    margin-right: 10px; /* Space between buttons */
+}

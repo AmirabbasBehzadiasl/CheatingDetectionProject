@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Application</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="card">
+        <button class="dark-mode-toggle" onclick="toggleDarkMode()">Dark Mode</button>
+
+        <div id="welcomeScreen">
+            <h1>Welcome to the Quiz</h1>
+            <p>Please enter your name to begin. Answer each question to the best of your ability!</p>
+            <input type="text" id="userName" placeholder="Enter Your Name:" oninput="checkAdminName()">
+            <input type="password" id="adminPassword" placeholder="Enter Admin Password" class="hidden">
+            <button onclick="startQuiz()">Start Quiz</button>
+            <button onclick="attemptShowCheatingAnalysis()">Show Cheating Analysis</button> 
+        </div>
+
+        <div id="quizScreen" class="hidden">
+            <h2 id="quizHeader">Quiz - </h2>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="pagination-dots" id="paginationDots"></div>
+
+            <p id="overallTimerContainer">Overall Time Left: <span id="overallTimer">03:00</span></p>
+
+            <h3 id="questionNumber">Question 1 of 3</h3>
+            <p id="questionText"></p>
+            <textarea id="userAnswer" placeholder="Type your answer here..."></textarea>
+            <p>Time for this question: <span id="questionTimer">0</span> seconds</p>
+            <button onclick="prevQuestion()" id="prevButton" class="hidden">Previous</button>
+            <button onclick="nextQuestion()" id="nextButton">Next</button>
+        </div>
+
+        <div id="quizCompletedScreen" class="hidden">
+            <h2>Quiz - <span id="completedUserName"></span></h2>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 100%; background-color: #28a745;"></div>
+            </div>
+            <div class="pagination-dots">
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+                <span class="dot active"></span>
+            </div>
+            <h3>Quiz Completed!</h3>
+            <p>Great job, <span id="completedUserNameMsg"></span>! Your answers have been submitted.</p>
+            <button onclick="attemptShowCheatingAnalysis()">Show Cheating Analysis</button>
+            <button onclick="resetQuiz()">Start New Quiz</button>
+        </div>
+
+        <div id="cheatingDetectionScreen" class="hidden">
+            <h1>Cheating Detection Results</h1>
+            <div class="filter-section">
+                <p><strong>Filter by Student Names:</strong></p>
+                <label for="studentName1">Student 1:</label>
+                <input type="text" id="studentName1" placeholder="Enter Name">
+                <label for="studentName2">Student 2:</label>
+                <input type="text" id="studentName2" placeholder="Enter Name">
+                
+                <p><strong>Filter by Similarity Thresholds (Min Value):</strong></p>
+                <label for="minLevenshtein">Min Levenshtein:</label>
+                <input type="number" id="minLevenshtein" placeholder="e.g., 0.7" step="0.01" min="0" max="1">
+                
+                <label for="minSentenceTransformer">Min Sentence Transformer:</label>
+                <input type="number" id="minSentenceTransformer" placeholder="e.g., 0.8" step="0.01" min="0" max="1">
+                
+                <label for="minSuspiciousTimeDiff">Min Suspicious Time Diff (seconds):</label>
+                <input type="number" id="minSuspiciousTimeDiff" placeholder="e.g., 5" step="1" min="0">
+
+                <button onclick="applyCheatingFilter()">Apply Filters</button>
+                <button onclick="resetCheatingFilter()">Clear Filters</button>
+            </div>
+            <div id="cheatingResults" class="cheating-results-container">
+            </div>
+            <button onclick="resetQuiz()">Start New Quiz</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
