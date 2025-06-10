@@ -8,11 +8,9 @@ const QUIZ_DURATION_SECONDS = 3 * 60; // 3 minutes
 let overallTimeLeft = QUIZ_DURATION_SECONDS;
 let fullAnalysisData = []; // Stores the full fetched cheating analysis data
 
-const ADMIN_USERNAME_FRONTEND = "admin"; 
-// IMPORTANT: The actual password check is now on the backend!
-// The value below is just for convenience to quickly test, the backend check is what matters.
-const ADMIN_PASSWORD_FRONTEND_PROMPT = "12345678"; 
-
+const ADMIN_USERNAME_FRONTEND = "admin";
+// IMPORTANT: The actual password check is now on the frontend only!
+const ADMIN_PASSWORD_FRONTEND_PROMPT = "12345678"; // This is now the actual password used for frontend validation
 
 // Base URL for your Spring Boot backend
 const BASE_API_URL = 'http://localhost:8080/api/exams'; // Assuming your backend runs on port 8080
@@ -65,33 +63,29 @@ function checkAdminName() {
 
 function startQuiz() {
     userName = document.getElementById('userName').value.trim();
-    
+
     if (userName === "") {
-        alert("Please enter your name to start the quiz."); // English message
+        alert("Please enter your name to start the quiz.");
         return;
     }
 
     // New validation for userName based on @Pattern and @NotBlank
     // This regex allows ONLY alphabet characters (both uppercase and lowercase)
-    // If your backend pattern was strictly for lowercase: `^[a-z]+$`
     if (!/^[a-zA-Z]+$/.test(userName)) {
-        alert("Please enter a name with only alphabet characters (no spaces or numbers)."); // English message
+        alert("Please enter a name with only alphabet characters (no spaces or numbers).");
         return;
     }
 
     // If "admin" is entered, handle it via attemptShowCheatingAnalysis()
     if (userName.toLowerCase() === ADMIN_USERNAME_FRONTEND) {
-        // This means the user typed "admin" and clicked "Start Quiz".
-        // We'll treat this as an attempt to access admin features.
-        attemptShowCheatingAnalysis(); 
+        attemptShowCheatingAnalysis();
         return; // Stop quiz start logic
     }
-
 
     document.getElementById('welcomeScreen').classList.add('hidden');
     document.getElementById('quizScreen').classList.remove('hidden');
     document.getElementById('quizHeader').textContent = `Quiz - ${userName}`;
-    
+
     answers = questions.map((q, index) => ({
         qnumber: index + 1,
         description: '', // Initialize description as empty string
@@ -106,7 +100,7 @@ function startQuiz() {
     startOverallQuizTimer();
 }
 
-// Renamed function to clarify its purpose: it attempts to show analysis after admin check
+// Function now handles frontend-only admin password check
 async function attemptShowCheatingAnalysis() {
     const userNameInput = document.getElementById('userName');
     const adminPasswordInput = document.getElementById('adminPassword');
@@ -116,44 +110,26 @@ async function attemptShowCheatingAnalysis() {
     // Only attempt admin login if the username is 'admin'
     if (currentUserName === ADMIN_USERNAME_FRONTEND) {
         if (!currentAdminPassword) {
-            alert("Please enter the admin password."); // English message
+            alert("Please enter the admin password.");
             adminPasswordInput.classList.remove('hidden'); // Ensure it's visible
             return;
         }
 
-        try {
-            // Send login request to backend
-            const response = await fetch(`${BASE_API_URL}/admin/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: currentUserName,
-                    password: currentAdminPassword
-                }),
-            });
-
-            if (response.ok) {
-                // If login is successful, then proceed to fetch analysis
-                console.log("Admin authenticated successfully on backend.");
-                await showCheatingAnalysis(currentUserName, currentAdminPassword); // Pass credentials to fetch analysis
-            } else {
-                alert("Invalid admin username or password."); // English message
-                adminPasswordInput.value = ''; // Clear password on failure
-            }
-        } catch (error) {
-            console.error('Error during admin login:', error);
-            alert(`An error occurred during admin login: ${error.message}`); // English message
+        // --- Frontend password check here ---
+        if (currentAdminPassword === ADMIN_PASSWORD_FRONTEND_PROMPT) {
+            console.log("Admin authenticated successfully on frontend.");
+            // No backend login needed for analysis access in this setup
+            await showCheatingAnalysis(); // Call showCheatingAnalysis without credentials
+        } else {
+            alert("Invalid admin password.");
+            adminPasswordInput.value = ''; // Clear password on failure
         }
     } else {
-        alert("Only 'admin' users can view cheating analysis directly from this button. Please enter 'admin' as your name."); // English message
-        // Optionally, transition back to welcome screen if they clicked from quiz completed screen
+        alert("Only 'admin' users can view cheating analysis directly from this button. Please enter 'admin' as your name.");
         document.getElementById('quizCompletedScreen').classList.add('hidden');
         document.getElementById('welcomeScreen').classList.remove('hidden');
     }
 }
-
 
 function startOverallQuizTimer() {
     clearInterval(overallQuizTimerInterval);
@@ -166,7 +142,7 @@ function startOverallQuizTimer() {
 
         if (overallTimeLeft <= 0) {
             clearInterval(overallQuizTimerInterval);
-            alert("Time's up! The quiz has ended."); // English message
+            alert("Time's up! The quiz has ended.");
             submitQuiz();
         }
     }, 1000);
@@ -175,7 +151,7 @@ function startOverallQuizTimer() {
 function updateOverallTimerDisplay() {
     const minutes = Math.floor(overallTimeLeft / 60);
     const seconds = overallTimeLeft % 60;
-    document.getElementById('overallTimer').textContent = 
+    document.getElementById('overallTimer').textContent =
         `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
@@ -184,7 +160,7 @@ function loadQuestion() {
     if (currentQuestionIndex < questions.length) {
         document.getElementById('questionNumber').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
         document.getElementById('questionText').textContent = questions[currentQuestionIndex];
-        
+
         const userAnswerTextArea = document.getElementById('userAnswer');
         // Load previous answer
         userAnswerTextArea.value = answers[currentQuestionIndex].description;
@@ -233,17 +209,16 @@ function saveCurrentAnswer() {
 
     // New validation for description (answer) based on @NotBlank
     if (userAnswer === "") {
-        // Alerting here might be disruptive if just navigating, but ensures user knows
-        alert("Please enter an answer for this question. Answers cannot be blank."); // English message
+        alert("Please enter an answer for this question. Answers cannot be blank.");
     }
-    
+
     answers[currentQuestionIndex].description = userAnswer;
     answers[currentQuestionIndex].endTime = new Date().toISOString().slice(0, 19);
 }
 
 function nextQuestion() {
     saveCurrentAnswer(); // Save the current answer before moving
-    
+
     if (currentQuestionIndex < questions.length - 1) {
         currentQuestionIndex++;
         updateProgressBar();
@@ -303,12 +278,12 @@ function goToQuestion(index) {
 
 async function submitQuiz() {
     // Ensure the last answer is saved before submission
-    saveCurrentAnswer(); 
+    saveCurrentAnswer();
 
     // Additional check for all answers before final submission
     for (const answer of answers) {
         if (answer.description.trim() === "") {
-            alert(`Question ${answer.qnumber} has not been answered. Please answer all questions.`); // English message
+            alert(`Question ${answer.qnumber} has not been answered. Please answer all questions.`);
             // Optionally, navigate to the unanswered question
             goToQuestion(answer.qnumber - 1);
             return; // Prevent submission
@@ -350,43 +325,35 @@ async function submitQuiz() {
         console.log('Quiz submitted successfully:', result);
     } catch (error) {
         console.error('Error submitting quiz:', error);
-        alert(`There was an error submitting your quiz: ${error.message}. Please try again.`); // English message
+        alert(`There was an error submitting your quiz: ${error.message}. Please try again.`);
         document.getElementById('quizCompletedScreen').classList.add('hidden');
         document.getElementById('welcomeScreen').classList.remove('hidden');
     }
 }
 
-// This function now receives credentials to pass to the backend
-async function showCheatingAnalysis(adminUsername, adminPassword) {
+// This function no longer receives credentials as they are not needed for backend fetch in this setup
+async function showCheatingAnalysis() {
     document.getElementById('welcomeScreen').classList.add('hidden'); // Hide welcome screen
     document.getElementById('quizCompletedScreen').classList.add('hidden');
     document.getElementById('quizScreen').classList.add('hidden'); // Also hide quiz screen if active
     document.getElementById('cheatingDetectionScreen').classList.remove('hidden');
 
     const cheatingResultsDiv = document.getElementById('cheatingResults');
-    cheatingResultsDiv.innerHTML = 'Loading cheating analysis...'; // English message
+    cheatingResultsDiv.innerHTML = 'Loading cheating analysis...';
 
     // Clear any active timers if analysis is shown directly from welcome screen
     clearInterval(individualQuestionTimerInterval);
     clearInterval(overallQuizTimerInterval);
 
     try {
-        // Pass username and password as query parameters for the /analyze endpoint
-        // IMPORTANT: In a real-world scenario, you'd use a token (JWT) obtained from /admin/login
-        // and pass it in the Authorization header. This is a simplification for demonstration.
-        const response = await fetch(`${BASE_API_URL}/analyze?username=${encodeURIComponent(adminUsername)}&password=${encodeURIComponent(adminPassword)}`, {
+        // No username/password needed in query parameters for /analyze if frontend handles auth
+        const response = await fetch(`${BASE_API_URL}/analyze`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                // 'Authorization': `Bearer ${yourAuthToken}` // How you'd typically do it with JWTs
             },
         });
 
-        if (response.status === 401) { // Unauthorized
-            alert("Authentication failed. Please log in as admin again."); // English message
-            resetQuiz(); // Go back to welcome screen
-            return;
-        }
         if (!response.ok) {
             const errorText = await response.text();
             throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
@@ -398,7 +365,7 @@ async function showCheatingAnalysis(adminUsername, adminPassword) {
 
     } catch (error) {
         console.error('Error fetching cheating analysis:', error);
-        cheatingResultsDiv.innerHTML = `<p style="color: red;">Error fetching cheating analysis: ${error.message}</p>`; // English message
+        cheatingResultsDiv.innerHTML = `<p style="color: red;">Error fetching cheating analysis: ${error.message}</p>`;
     }
 }
 
@@ -418,7 +385,7 @@ function applyCheatingFilter() {
             const s2 = pairAnalysis.student2.toLowerCase();
 
             if (studentName1 && studentName2) {
-                return (s1 === studentName1 && s2 === studentName2) || 
+                return (s1 === studentName1 && s2 === studentName2) ||
                        (s1 === studentName2 && s2 === studentName1);
             } else if (studentName1) {
                 return s1 === studentName1 || s2 === studentName1;
@@ -436,7 +403,7 @@ function applyCheatingFilter() {
             const levenshteinCheck = isNaN(minLevenshtein) || qa.levenshteinSimilarity >= minLevenshtein;
             const sentenceTransformerCheck = isNaN(minSentenceTransformer) || qa.sentenceTransformerSimilarity >= minSentenceTransformer;
             const suspiciousTimeDiffCheck = isNaN(minSuspiciousTimeDiff) || qa.suspiciousTimeDifference >= minSuspiciousTimeDiff;
-            
+
             return levenshteinCheck && sentenceTransformerCheck && suspiciousTimeDiffCheck;
         });
     });
@@ -468,7 +435,7 @@ function renderCheatingAnalysis(analysisData) {
     cheatingResultsDiv.innerHTML = '';
 
     if (analysisData.length === 0) {
-        cheatingResultsDiv.innerHTML = '<p>No cheating analysis data available for the selected filters, or no suspicious activity was detected.</p>'; // English message
+        cheatingResultsDiv.innerHTML = '<p>No cheating analysis data available for the selected filters, or no suspicious activity was detected.</p>';
         return;
     }
 
