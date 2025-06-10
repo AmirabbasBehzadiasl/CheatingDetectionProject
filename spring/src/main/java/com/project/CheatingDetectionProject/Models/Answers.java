@@ -72,4 +72,9 @@ public class Answers {
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
 }

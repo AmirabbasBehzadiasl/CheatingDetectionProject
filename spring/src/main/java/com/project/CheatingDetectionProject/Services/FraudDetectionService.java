@@ -17,9 +17,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Service for fraud detection by processing and analyzing exam responses.
@@ -64,6 +63,7 @@ public class FraudDetectionService {
         if (existingStudent.isPresent()) {
             throw new AlreadyExistException("Student with name " + studentResponse.getName() + " already exists.");
         }
+
         Student newStudent = studentMapper.toStudent(studentResponse);
 
         List<Answers> answers = new ArrayList<>();
@@ -109,6 +109,8 @@ public class FraudDetectionService {
                             analysis.setSentenceTransformerSimilarity(
                                     sentenceTransformerClient.getSimilarity(
                                             answer1.getDescription(), answer2.getDescription()));
+                            analysis.setAnswerStudentOne(answer1.getDescription());
+                            analysis.setAnswerStudentTwo(answer2.getDescription());
                             analysis.setSuspiciousTimeDifference(calculateTimeRisk(answer1.getStartTime(),answer2.getStartTime(),answer1.getEndTime(),answer2.getEndTime()));
                             analysis.setSuspiciousTimeStudent1(calculateTimeMin(answer1.getEndTime() , answer1.getStartTime()));
                             analysis.setSuspiciousTimeStudent2(calculateTimeMin(answer2.getEndTime() , answer2.getStartTime()));
@@ -126,18 +128,28 @@ public class FraudDetectionService {
     }
 
     private double calculateTimeRisk(LocalDateTime startTime1, LocalDateTime startTime2 ,LocalDateTime endTime1 , LocalDateTime endTime2) {
-        return  Math.max(0, (double) (600 - (ChronoUnit.SECONDS.between(startTime1, startTime2) + ChronoUnit.MINUTES.between(endTime1, endTime2))) /600);
-
+        double calculatedValue = (double) (600 - (ChronoUnit.SECONDS.between(startTime1, startTime2) + ChronoUnit.MINUTES.between(endTime1, endTime2))) / 600.0;
+        return Math.max(0.0, Math.min(1.0, calculatedValue));
     }
 
     private double calculateTimeMin(LocalDateTime endTime , LocalDateTime startTime ) {
-        System.err.println(ChronoUnit.SECONDS.between(startTime,endTime));
-        return Math.max(0,(300 - (double) ((ChronoUnit.SECONDS.between(startTime, endTime))) )/300);
+        return Math.max(0,(90 - (double) ((ChronoUnit.SECONDS.between(startTime, endTime))) )/90);
     }
 
     private List<String> findSimilarWords(String s1, String s2) {
-        List<String> words1 = List.of(s1.toLowerCase().split("\\s+"));
-        List<String> words2 = List.of(s2.toLowerCase().split("\\s+"));
-        return words1.stream().filter(words2::contains).toList();
+        Set<String> normalizedWords1 = normalizeAndGetUniqueWords(s1);
+        Set<String> normalizedWords2 = normalizeAndGetUniqueWords(s2);
+
+        normalizedWords1.retainAll(normalizedWords2);
+
+        return normalizedWords1.stream().toList();
+    }
+
+    private Set<String> normalizeAndGetUniqueWords(String text) {
+        return Arrays.stream(text.toLowerCase()
+                        .replaceAll("[^a-z0-9\\s]", "")
+                        .split("\\s+"))
+                .filter(word -> !word.isEmpty())
+                .collect(Collectors.toSet());
     }
 }

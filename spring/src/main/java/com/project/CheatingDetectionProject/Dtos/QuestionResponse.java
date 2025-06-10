@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 /**
  * for representing a single question's response
@@ -56,4 +57,5 @@ public class QuestionResponse {
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
+
 }

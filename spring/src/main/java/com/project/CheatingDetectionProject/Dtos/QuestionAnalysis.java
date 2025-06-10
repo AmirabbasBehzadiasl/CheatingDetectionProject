@@ -5,6 +5,8 @@ import java.util.List;
 public class QuestionAnalysis {
 
     private int qnumber;
+    private String answerStudentOne;
+    private String answerStudentTwo;
     private double levenshteinSimilarity;
     private double sentenceTransformerSimilarity;
     private double SuspiciousTimeDifference;
@@ -66,5 +68,21 @@ public class QuestionAnalysis {
 
     public void setSuspiciousTimeStudent2(double suspiciousTimeStudent2) {
         SuspiciousTimeStudent2 = suspiciousTimeStudent2;
+    }
+
+    public String getAnswerStudentOne() {
+        return answerStudentOne;
+    }
+
+    public void setAnswerStudentOne(String answerStudentOne) {
+        this.answerStudentOne = answerStudentOne;
+    }
+
+    public String getAnswerStudentTwo() {
+        return answerStudentTwo;
+    }
+
+    public void setAnswerStudentTwo(String answerStudentTwo) {
+        this.answerStudentTwo = answerStudentTwo;
     }
 }
